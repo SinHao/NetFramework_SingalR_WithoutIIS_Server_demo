@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>SignalR</title>
+    <!-- 引用JQuery -->
+    <script src="Scripts/jquery-3.6.0.min.js"></script>
+    <!-- 引用SignalR的JS套件,伺服器端可以先安裝 Microsoft.AspNet.SignalR.JS -->
+    <script src="Scripts/jquery.signalR-2.4.1.min.js"></script>
+    <!-- 伺服器端生成的SignalR相關JS -->
+    <script src="http://localhost:8080/signalr/hubs"></script>
+</head>
+<body>
+    <input type="text" id="user" />
+    <input type="text" id="message" />
+    <input type="button" id="btnSend" value="Send" />
+    <ul id="messageList"></ul>
+
+    <script>
+        $(function () {
+            //// 設定SingalR伺服器的連線， /signalr 一定要加
+            $.connection.hub.url = "http://localhost:8080/signalr";
+
+            //// 設定要連線的hub, myHub要對應伺服器端的Hub名稱,且第一個字要小寫(小駝峰)
+            let hub = $.connection.myHub;
+
+            //// 設定Client的函式
+            hub.client.SayHello = function (user, message) {                
+                $('#messageList').append($('<li>').text(user + ':' + message));
+            };
+
+            //// 連線成功後要做的動作
+            $.connection.hub.start().done(function () {
+                console.log('server connected');
+            });
+
+            $('#btnSend').click(function () {
+                let user = $('#user').val();
+                let message = $('#message').val();
+                //// 呼叫伺服器端的函式
+                hub.server.send(user, message);
+            });
+
+        });
+    </script>
+</body>
+</html>
